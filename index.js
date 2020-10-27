@@ -27,7 +27,7 @@ var prerender = module.exports = function(req, res, next) {
       if(prerenderedResponse){
         const cacheControlHeader = {
           "Cache-Control":
-            "public,max-age=15,s-maxage=900,stale-while-revalidate=1000,stale-if-error=14400"
+            "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400"
         }
         const prerenderedRespHeader = { ...cacheControlHeader, ...prerenderedResponse.headers };
         res.writeHead(prerenderedResponse.statusCode, prerenderedRespHeader);
