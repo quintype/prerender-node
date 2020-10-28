@@ -31,6 +31,7 @@ var prerender = module.exports = function(req, res, next) {
         }
         const prerenderedRespHeader = {...cacheControlHeader, ...prerenderedResponse.headers };
         res.writeHead(prerenderedResponse.statusCode, prerenderedRespHeader);
+        console.log("Prerender response here", res);
         return res.end(prerenderedResponse.body);
       } else {
         next(err);
