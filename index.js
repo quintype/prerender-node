@@ -25,7 +25,11 @@ var prerender = module.exports = function(req, res, next) {
       prerender.afterRenderFn(err, req, prerenderedResponse);
 
       if(prerenderedResponse){
-        const prerenderedRespHeader = {...prerenderedResponse.headers };
+        const cacheControlHeader = {
+          "Cache-Control":
+            "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400"
+        }
+        const prerenderedRespHeader = {...cacheControlHeader, ...prerenderedResponse.headers };
         res.writeHead(prerenderedResponse.statusCode, prerenderedRespHeader);
         return res.end(prerenderedResponse.body);
       } else {
@@ -195,8 +199,8 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     });
   }
   (options.headers["Content-Type"] = "text/html"),
-  (options.headers["Cache-Control"] =
-    "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400"),
+  // (options.headers["Cache-Control"] =
+  //   "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400"),
   options.headers['User-Agent'] = req.headers['user-agent'];
   options.headers['Accept-Encoding'] = 'gzip';
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
