@@ -199,8 +199,8 @@ prerender.getPrerenderedPageResponse = function(req, callback) {
     });
   }
   (options.headers["Content-Type"] = "text/html"),
-  // (options.headers["Cache-Control"] =
-  //   "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400"),
+  (options.headers["Cache-Control"] =
+    "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400"),
   options.headers['User-Agent'] = req.headers['user-agent'];
   options.headers['Accept-Encoding'] = 'gzip';
   if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
