@@ -227,16 +227,12 @@ prerender.getPrerenderedPageResponse = function (req, callback) {
     .get(options)
     .on("response", function (response) {
       response.headers["Cache-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
-      response.headers["Vary"] = "Accept-Encoding";
-      response.headers["Surrogate-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=150,stale-if-error=3600";
       if (
         response.headers["content-encoding"] &&
         response.headers["content-encoding"] === "gzip"
       ) {
-        console.log("inside if ------", response);
         prerender.gunzipResponse(response, callback);
       } else {
-        console.log("inside else ------", response);
         prerender.plainResponse(response, callback);
       }
     })
