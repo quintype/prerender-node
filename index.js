@@ -3,7 +3,6 @@ var request = require("request"),
   zlib = require("zlib");
 
 var prerender = (module.exports = function (req, res, next) {
-  console.log('inside pre render stuff')
   if (!prerender.shouldShowPrerenderedPage(req)) return next();
 
   prerender.beforeRenderFn(req, function (err, cachedRender) {
@@ -134,7 +133,6 @@ prerender.blacklisted = function (blacklist) {
 };
 
 prerender.shouldShowPrerenderedPage = function (req) {
-  console.log('inside this should show')
   var userAgent = req.headers["user-agent"],
     bufferAgent = req.headers["x-bufferbot"],
     isRequestingPrerenderedPage = false;
@@ -229,6 +227,8 @@ prerender.getPrerenderedPageResponse = function (req, callback) {
     .get(options)
     .on("response", function (response) {
       response.headers["Cache-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
+      response.headers["Vary"] = "Accept-Encoding";
+      response.headers["Surrogate-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=150,stale-if-error=3600";
       if (
         response.headers["content-encoding"] &&
         response.headers["content-encoding"] === "gzip"
@@ -259,7 +259,6 @@ prerender.gunzipResponse = function (response, callback) {
   gunzip.on("error", function (err) {
     callback(err);
   });
-  console.log("inside gunzipResponse", response.headers);
   response.pipe(gunzip);
 };
 
@@ -273,7 +272,6 @@ prerender.plainResponse = function (response, callback) {
     response.body = content;
     callback(null, response);
   });
-  console.log("inside plainResponse", response.headers);
 };
 
 prerender.buildApiUrl = function (req) {
