@@ -1,6 +1,7 @@
 var request = require("request"),
   url = require("url"),
   zlib = require("zlib");
+const { addCacheHeadersToResult } = require("./cdn-cache");
 
 var prerender = (module.exports = function (req, res, next) {
   if (!prerender.shouldShowPrerenderedPage(req)) return next();
@@ -237,15 +238,14 @@ prerender.getPrerenderedPageResponse = function (req, callback) {
   request
     .get(options)
     .on("response", function (response) {
-      response.headers["Cache-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
+      // response.headers["Cache-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
+      addCacheHeadersToResult(response, "prerenderKey");
       if (
         response.headers["content-encoding"] &&
         response.headers["content-encoding"] === "gzip"
       ) {
-        console.log("inside if------------", response)
         prerender.gunzipResponse(response, callback);
       } else {
-        console.log("inside else------------", response)
         prerender.plainResponse(response, callback);
       }
     })
@@ -271,7 +271,7 @@ prerender.gunzipResponse = function (response, callback) {
     callback(err);
   });
 
-  console.log("----------------inside gunzip", response.headers)
+  console.log("inside gunzip !!!", response.headers)
 
   response.pipe(gunzip);
 };
@@ -282,7 +282,7 @@ prerender.plainResponse = function (response, callback) {
   response.on("data", function (chunk) {
     content += chunk;
   });
-  console.log("----------------inside plain response", response.headers)
+  console.log("inside plain response !!!", response.headers)
   response.on("end", function () {
     response.body = content;
     callback(null, response);
