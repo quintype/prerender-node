@@ -1,79 +1,83 @@
-var request = require('request')
-  , url = require('url')
-  , zlib = require('zlib');
+var request = require("request"),
+  url = require("url"),
+  zlib = require("zlib");
 
-var prerender = module.exports = function(req, res, next) {
-  if(!prerender.shouldShowPrerenderedPage(req)) return next();
+var prerender = (module.exports = function (req, res, next) {
+  if (!prerender.shouldShowPrerenderedPage(req)) return next();
 
-  prerender.beforeRenderFn(req, function(err, cachedRender) {
-
+  prerender.beforeRenderFn(req, function (err, cachedRender) {
     if (!err && cachedRender) {
-      if (typeof cachedRender == 'string') {
+      if (typeof cachedRender == "string") {
         res.writeHead(200, {
-          "Content-Type": "text/html"
+          "Content-Type": "text/html",
         });
         return res.end(cachedRender);
-      } else if (typeof cachedRender == 'object') {
+      } else if (typeof cachedRender == "object") {
         res.writeHead(cachedRender.status || 200, {
-          "Content-Type": "text/html"
+          "Content-Type": "text/html",
         });
-        return res.end(cachedRender.body || '');
+        return res.end(cachedRender.body || "");
       }
     }
 
-    prerender.getPrerenderedPageResponse(req, function(err, prerenderedResponse){
+    prerender.getPrerenderedPageResponse(req, function (
+      err,
+      prerenderedResponse
+    ) {
       prerender.afterRenderFn(err, req, prerenderedResponse);
 
-      if(prerenderedResponse){
+      if (prerenderedResponse) {
         const cacheControlHeader = {
           "Cache-Control":
-            "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400"
-        }
-        const prerenderedRespHeader = {...cacheControlHeader, ...prerenderedResponse.headers };
+            "public,max-age=15,s-maxage=60,stale-while-revalidate=1000,stale-if-error=14400",
+        };
+        const prerenderedRespHeader = {
+          ...cacheControlHeader,
+          ...prerenderedResponse.headers,
+        };
         res.writeHead(prerenderedResponse.statusCode, prerenderedRespHeader);
-        console.log("Prerender response here", res);
         return res.end(prerenderedResponse.body);
       } else {
         next(err);
       }
     });
   });
-};
+});
 
 prerender.crawlerUserAgents = [
-  'googlebot',
-  'Yahoo! Slurp',
-  'bingbot',
-  'yandex',
-  'baiduspider',
-  'facebookexternalhit',
-  'twitterbot',
-  'rogerbot',
-  'linkedinbot',
-  'embedly',
-  'quora link preview',
-  'showyoubot',
-  'outbrain',
-  'pinterest/0.',
-  'developers.google.com/+/web/snippet',
-  'slackbot',
-  'vkShare',
-  'W3C_Validator',
-  'redditbot',
-  'Applebot',
-  'WhatsApp',
-  'flipboard',
-  'tumblr',
-  'bitlybot',
-  'SkypeUriPreview',
-  'nuzzel',
-  'Discordbot',
-  'Google Page Speed',
-  'Qwantify',
-  'pinterestbot',
-  'Bitrix link preview',
-  'XING-contenttabreceiver',
-  'Chrome-Lighthouse',
+  "googlebot",
+  "Yahoo! Slurp",
+  "bingbot",
+  "yandex",
+  "baiduspider",
+  "facebookexternalhit",
+  "twitterbot",
+  "rogerbot",
+  "linkedinbot",
+  "embedly",
+  "quora link preview",
+  "showyoubot",
+  "outbrain",
+  "pinterest/0.",
+  "developers.google.com/+/web/snippet",
+  "slackbot",
+  "vkShare",
+  "W3C_Validator",
+  "redditbot",
+  "Applebot",
+  "WhatsApp",
+  "flipboard",
+  "tumblr",
+  "bitlybot",
+  "SkypeUriPreview",
+  "nuzzel",
+  "Discordbot",
+  "Google Page Speed",
+  "Qwantify",
+  "pinterestbot",
+  "Bitrix link preview",
+  "XING-contenttabreceiver",
+  "Chrome-Lighthouse",
   "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
   "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/W.X.Y.Z‡ Safari/537.36",
   "Googlebot/2.1 (+http://www.google.com/bot.html)",
@@ -81,215 +85,255 @@ prerender.crawlerUserAgents = [
   "curl/7.54.0",
 ];
 
-
 prerender.extensionsToIgnore = [
-  '.js',
-  '.css',
-  '.xml',
-  '.less',
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.gif',
-  '.pdf',
-  '.doc',
-  '.txt',
-  '.ico',
-  '.rss',
-  '.zip',
-  '.mp3',
-  '.rar',
-  '.exe',
-  '.wmv',
-  '.doc',
-  '.avi',
-  '.ppt',
-  '.mpg',
-  '.mpeg',
-  '.tif',
-  '.wav',
-  '.mov',
-  '.psd',
-  '.ai',
-  '.xls',
-  '.mp4',
-  '.m4a',
-  '.swf',
-  '.dat',
-  '.dmg',
-  '.iso',
-  '.flv',
-  '.m4v',
-  '.torrent',
-  '.woff',
-  '.ttf',
-  '.svg',
-  '.webmanifest'
+  ".js",
+  ".css",
+  ".xml",
+  ".less",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".pdf",
+  ".doc",
+  ".txt",
+  ".ico",
+  ".rss",
+  ".zip",
+  ".mp3",
+  ".rar",
+  ".exe",
+  ".wmv",
+  ".doc",
+  ".avi",
+  ".ppt",
+  ".mpg",
+  ".mpeg",
+  ".tif",
+  ".wav",
+  ".mov",
+  ".psd",
+  ".ai",
+  ".xls",
+  ".mp4",
+  ".m4a",
+  ".swf",
+  ".dat",
+  ".dmg",
+  ".iso",
+  ".flv",
+  ".m4v",
+  ".torrent",
+  ".woff",
+  ".ttf",
+  ".svg",
+  ".webmanifest",
 ];
 
-
-prerender.whitelisted = function(whitelist) {
-  prerender.whitelist = typeof whitelist === 'string' ? [whitelist] : whitelist;
+prerender.whitelisted = function (whitelist) {
+  prerender.whitelist = typeof whitelist === "string" ? [whitelist] : whitelist;
   return this;
 };
 
-
-prerender.blacklisted = function(blacklist) {
-  prerender.blacklist = typeof blacklist === 'string' ? [blacklist] : blacklist;
+prerender.blacklisted = function (blacklist) {
+  prerender.blacklist = typeof blacklist === "string" ? [blacklist] : blacklist;
   return this;
 };
 
+prerender.shouldShowPrerenderedPage = function (req) {
+  var userAgent = req.headers["user-agent"],
+    bufferAgent = req.headers["x-bufferbot"],
+    isRequestingPrerenderedPage = false;
 
-prerender.shouldShowPrerenderedPage = function(req) {
-  var userAgent = req.headers['user-agent']
-    , bufferAgent = req.headers['x-bufferbot']
-    , isRequestingPrerenderedPage = false;
-
-  if(!userAgent) return false;
-  if(req.method != 'GET' && req.method != 'HEAD') return false;
-  if(req.headers && req.headers['x-prerender']) return false;
+  if (!userAgent) return false;
+  if (req.method != "GET" && req.method != "HEAD") return false;
+  if (req.headers && req.headers["x-prerender"]) return false;
 
   //if it contains _escaped_fragment_, show prerendered page
   var parsedQuery = url.parse(req.url, true).query;
-  if(parsedQuery && parsedQuery['_escaped_fragment_'] !== undefined) isRequestingPrerenderedPage = true;
+  if (parsedQuery && parsedQuery["_escaped_fragment_"] !== undefined)
+    isRequestingPrerenderedPage = true;
 
   //if it is a bot...show prerendered page
-  if(prerender.crawlerUserAgents.some(function(crawlerUserAgent){ return userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) !== -1;})) isRequestingPrerenderedPage = true;
+  if (
+    prerender.crawlerUserAgents.some(function (crawlerUserAgent) {
+      return (
+        userAgent.toLowerCase().indexOf(crawlerUserAgent.toLowerCase()) !== -1
+      );
+    })
+  )
+    isRequestingPrerenderedPage = true;
 
   //if it is BufferBot...show prerendered page
-  if(bufferAgent) isRequestingPrerenderedPage = true;
+  if (bufferAgent) isRequestingPrerenderedPage = true;
 
   //if it is a bot and is requesting a resource...dont prerender
-  if(prerender.extensionsToIgnore.some(function(extension){return req.url.toLowerCase().indexOf(extension) !== -1;})) return false;
+  if (
+    prerender.extensionsToIgnore.some(function (extension) {
+      return req.url.toLowerCase().indexOf(extension) !== -1;
+    })
+  )
+    return false;
 
   //if it is a bot and not requesting a resource and is not whitelisted...dont prerender
-  if(Array.isArray(this.whitelist) && this.whitelist.every(function(whitelisted){return (new RegExp(whitelisted)).test(req.url) === false;})) return false;
+  if (
+    Array.isArray(this.whitelist) &&
+    this.whitelist.every(function (whitelisted) {
+      return new RegExp(whitelisted).test(req.url) === false;
+    })
+  )
+    return false;
 
   //if it is a bot and not requesting a resource and is not blacklisted(url or referer)...dont prerender
-  if(Array.isArray(this.blacklist) && this.blacklist.some(function(blacklisted){
-    var blacklistedUrl = false
-      , blacklistedReferer = false
-      , regex = new RegExp(blacklisted);
+  if (
+    Array.isArray(this.blacklist) &&
+    this.blacklist.some(function (blacklisted) {
+      var blacklistedUrl = false,
+        blacklistedReferer = false,
+        regex = new RegExp(blacklisted);
 
-    blacklistedUrl = regex.test(req.url) === true;
-    if(req.headers['referer']) blacklistedReferer = regex.test(req.headers['referer']) === true;
+      blacklistedUrl = regex.test(req.url) === true;
+      if (req.headers["referer"])
+        blacklistedReferer = regex.test(req.headers["referer"]) === true;
 
-    return blacklistedUrl || blacklistedReferer;
-  })) return false;
+      return blacklistedUrl || blacklistedReferer;
+    })
+  )
+    return false;
 
   return isRequestingPrerenderedPage;
 };
 
-
 prerender.prerenderServerRequestOptions = {};
 
-prerender.getPrerenderedPageResponse = function(req, callback) {
+prerender.getPrerenderedPageResponse = function (req, callback) {
   var options = {
     uri: url.parse(prerender.buildApiUrl(req)),
     followRedirect: false,
-    headers: {}
+    headers: {},
   };
-  for (var attrname in this.prerenderServerRequestOptions) { options[attrname] = this.prerenderServerRequestOptions[attrname]; }
+  for (var attrname in this.prerenderServerRequestOptions) {
+    options[attrname] = this.prerenderServerRequestOptions[attrname];
+  }
   if (this.forwardHeaders === true) {
-    Object.keys(req.headers).forEach(function(h) {
+    Object.keys(req.headers).forEach(function (h) {
       // Forwarding the host header can cause issues with server platforms that require it to match the URL
-      if (h == 'host') {
+      if (h == "host") {
         return;
       }
       options.headers[h] = req.headers[h];
     });
   }
   (options.headers["Content-Type"] = "text/html"),
-  (options.headers["Cache-Control"] =
-    "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400"),
-  options.headers['User-Agent'] = req.headers['user-agent'];
-  options.headers['Accept-Encoding'] = 'gzip';
-  if(this.prerenderToken || process.env.PRERENDER_TOKEN) {
-    options.headers['X-Prerender-Token'] = this.prerenderToken || process.env.PRERENDER_TOKEN;
+    (options.headers["Cache-Control"] =
+      "public,max-age=15,s-maxage=60,stale-while-revalidate=1000,stale-if-error=14400"),
+    (options.headers["User-Agent"] = req.headers["user-agent"]);
+  options.headers["Accept-Encoding"] = "gzip";
+  if (this.prerenderToken || process.env.PRERENDER_TOKEN) {
+    options.headers["X-Prerender-Token"] =
+      this.prerenderToken || process.env.PRERENDER_TOKEN;
   }
 
-  request.get(options).on('response', function(response) {
-    if(response.headers['content-encoding'] && response.headers['content-encoding'] === 'gzip') {
-      prerender.gunzipResponse(response, callback);
-    } else {
-      prerender.plainResponse(response, callback);
-    }
-  }).on('error', function(err) {
-    callback(err);
-  });
+  request
+    .get(options)
+    .on("response", function (response) {
+      response.headers["Cache-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
+      if (
+        response.headers["content-encoding"] &&
+        response.headers["content-encoding"] === "gzip"
+      ) {
+        console.log("inside if------------", response)
+        prerender.gunzipResponse(response, callback);
+      } else {
+        console.log("inside else------------", response)
+        prerender.plainResponse(response, callback);
+      }
+    })
+    .on("error", function (err) {
+      callback(err);
+    });
 };
 
-prerender.gunzipResponse = function(response, callback) {
-  var gunzip = zlib.createGunzip()
-    , content = '';
+prerender.gunzipResponse = function (response, callback) {
+  var gunzip = zlib.createGunzip(),
+    content = "";
 
-  gunzip.on('data', function(chunk) {
+  gunzip.on("data", function (chunk) {
     content += chunk;
   });
-  gunzip.on('end', function() {
+  gunzip.on("end", function () {
     response.body = content;
-    delete response.headers['content-encoding'];
-    delete response.headers['content-length'];
+    delete response.headers["content-encoding"];
+    delete response.headers["content-length"];
     callback(null, response);
   });
-  gunzip.on('error', function(err){
+  gunzip.on("error", function (err) {
     callback(err);
   });
+
+  console.log("----------------inside gunzip", response.headers)
 
   response.pipe(gunzip);
 };
 
-prerender.plainResponse = function(response, callback) {
-  var content = '';
+prerender.plainResponse = function (response, callback) {
+  var content = "";
 
-  response.on('data', function(chunk) {
+  response.on("data", function (chunk) {
     content += chunk;
   });
-  response.on('end', function() {
+  console.log("----------------inside plain response", response.headers)
+  response.on("end", function () {
     response.body = content;
     callback(null, response);
   });
 };
 
-
-prerender.buildApiUrl = function(req) {
+prerender.buildApiUrl = function (req) {
   var prerenderUrl = prerender.getPrerenderServiceUrl();
-  var forwardSlash = prerenderUrl.indexOf('/', prerenderUrl.length - 1) !== -1 ? '' : '/';
+  var forwardSlash =
+    prerenderUrl.indexOf("/", prerenderUrl.length - 1) !== -1 ? "" : "/";
 
   var protocol = req.connection.encrypted ? "https" : "http";
-  if (req.headers['cf-visitor']) {
-    var match = req.headers['cf-visitor'].match(/"scheme":"(http|https)"/);
+  if (req.headers["cf-visitor"]) {
+    var match = req.headers["cf-visitor"].match(/"scheme":"(http|https)"/);
     if (match) protocol = match[1];
   }
-  if (req.headers['x-forwarded-proto']) {
-    protocol = req.headers['x-forwarded-proto'].split(',')[0];
+  if (req.headers["x-forwarded-proto"]) {
+    protocol = req.headers["x-forwarded-proto"].split(",")[0];
   }
   if (this.protocol) {
     protocol = this.protocol;
   }
-  var fullUrl = protocol + "://" + (this.host || req.headers['x-forwarded-host'] || req.headers['host']) + req.url;
+  var fullUrl =
+    protocol +
+    "://" +
+    (this.host || req.headers["x-forwarded-host"] || req.headers["host"]) +
+    req.url;
   return prerenderUrl + forwardSlash + fullUrl;
 };
 
-prerender.getPrerenderServiceUrl = function() {
-  return this.prerenderServiceUrl || process.env.PRERENDER_SERVICE_URL || 'https://service.prerender.io/';
+prerender.getPrerenderServiceUrl = function () {
+  return (
+    this.prerenderServiceUrl ||
+    process.env.PRERENDER_SERVICE_URL ||
+    "https://service.prerender.io/"
+  );
 };
 
-prerender.beforeRenderFn = function(req, done) {
+prerender.beforeRenderFn = function (req, done) {
   if (!this.beforeRender) return done();
 
   return this.beforeRender(req, done);
 };
 
-
-prerender.afterRenderFn = function(err, req, prerender_res) {
+prerender.afterRenderFn = function (err, req, prerender_res) {
   if (!this.afterRender) return;
 
   this.afterRender(err, req, prerender_res);
 };
 
-
-prerender.set = function(name, value) {
+prerender.set = function (name, value) {
   this[name] = value;
   return this;
 };
