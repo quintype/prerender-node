@@ -239,14 +239,15 @@ prerender.getPrerenderedPageResponse = function (req, callback) {
     .get(options)
     .on("response", function (response) {
       // response.headers["Cache-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
-      addCacheHeadersToResult(response, "prerenderKey");
+      const res = addCacheHeadersToResult(response, ["prerenderKey"]);
+      console.log("After function call response header", res.headers);
       if (
-        response.headers["content-encoding"] &&
-        response.headers["content-encoding"] === "gzip"
+        res.headers["content-encoding"] &&
+        res.headers["content-encoding"] === "gzip"
       ) {
-        prerender.gunzipResponse(response, callback);
+        prerender.gunzipResponse(res, callback);
       } else {
-        prerender.plainResponse(response, callback);
+        prerender.plainResponse(res, callback);
       }
     })
     .on("error", function (err) {
