@@ -1,7 +1,6 @@
 var request = require("request"),
   url = require("url"),
   zlib = require("zlib");
-const { addCacheHeadersToResult } = require("./cdn-cache");
 
 var prerender = (module.exports = function (req, res, next) {
   if (!prerender.shouldShowPrerenderedPage(req)) return next();
