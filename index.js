@@ -238,9 +238,9 @@ prerender.getPrerenderedPageResponse = function (req, callback) {
   request
     .get(options)
     .on("response", function (response) {
-      // response.headers["Cache-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
-      const res = addCacheHeadersToResult(response, ["prerenderKey"]);
-      console.log("After function call response header", res.headers);
+      response.headers["Cache-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
+      response.headers["Vary"] = "Accept-Encoding";
+      response.headers["Surrogate-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=150,stale-if-error=3600";
       if (
         res.headers["content-encoding"] &&
         res.headers["content-encoding"] === "gzip"
