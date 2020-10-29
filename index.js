@@ -233,8 +233,10 @@ prerender.getPrerenderedPageResponse = function (req, callback) {
         response.headers["content-encoding"] &&
         response.headers["content-encoding"] === "gzip"
       ) {
+        console.log("inside if ------", response);
         prerender.gunzipResponse(response, callback);
       } else {
+        console.log("inside else ------", response);
         prerender.plainResponse(response, callback);
       }
     })
