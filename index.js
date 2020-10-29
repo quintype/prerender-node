@@ -3,6 +3,7 @@ var request = require("request"),
   zlib = require("zlib");
 
 var prerender = (module.exports = function (req, res, next) {
+  console.log('inside pre render stuff')
   if (!prerender.shouldShowPrerenderedPage(req)) return next();
 
   prerender.beforeRenderFn(req, function (err, cachedRender) {
@@ -133,6 +134,7 @@ prerender.blacklisted = function (blacklist) {
 };
 
 prerender.shouldShowPrerenderedPage = function (req) {
+  console.log('inside this should show')
   var userAgent = req.headers["user-agent"],
     bufferAgent = req.headers["x-bufferbot"],
     isRequestingPrerenderedPage = false;
