@@ -25,8 +25,10 @@ var prerender = (module.exports = function (req, res, next) {
       prerenderedResponse
     ) {
       prerender.afterRenderFn(err, req, prerenderedResponse);
-
+      console.log("afterRenderFn prerenderedResponse !", prerenderedResponse);
       if (prerenderedResponse) {
+        console.log("afterRenderFn response !", prerenderedResponse.headers);
+        console.log("afterRenderFn res !!", res.headers);
         res.writeHead(prerenderedResponse.statusCode, prerenderedResponse.headers);
         return res.end(prerenderedResponse.body);
       } else {
@@ -233,8 +235,10 @@ prerender.getPrerenderedPageResponse = function (req, callback) {
         response.headers["content-encoding"] &&
         response.headers["content-encoding"] === "gzip"
       ) {
+        console.log("node cache response !", response.headers["Cache-Control"]);
         prerender.gunzipResponse(response, callback);
       } else {
+        console.log("node cache response !!", response.headers["Cache-Control"]);
         prerender.plainResponse(response, callback);
       }
     })
