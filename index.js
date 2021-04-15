@@ -294,11 +294,17 @@ prerender.buildApiUrl = function (req) {
   if (this.protocol) {
     protocol = this.protocol;
   }
+
   var fullUrl =
     protocol +
     "://" +
-    (this.host || req.headers["x-forwarded-host"] || req.headers["host"]) +
-    req.url;
+    (this.host || req.headers["x-forwarded-host"] || req.headers["host"]); //removing req.url ->  contains /?prerender=true
+
+  console.log("prerenderUrl", prerenderUrl);
+  console.log("forwardSlash", forwardSlash);
+  console.log("req.url", req.url);
+  console.log("fullUrl", fullUrl);
+  
   return prerenderUrl + forwardSlash + fullUrl;
 };
 
