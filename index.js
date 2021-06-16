@@ -295,7 +295,10 @@ prerender.buildApiUrl = function (req) {
     "://" +
     (this.host || req.headers["x-forwarded-host"] || req.headers["host"]) +
     req.url;
-  return prerenderUrl + forwardSlash + fullUrl;
+
+  var urlObj = new URL(prerenderUrl + forwardSlash + fullUrl);
+  var trimmedUrl = urlObj.origin + urlObj.pathname;
+  return trimmedUrl || prerenderUrl + forwardSlash + fullUrl;
 };
 
 prerender.getPrerenderServiceUrl = function () {
