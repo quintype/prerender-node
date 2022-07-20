@@ -26,7 +26,7 @@ var prerender = (module.exports = function (req, res, next) {
         prerender.afterRenderFn(err, req, prerenderedResponse);
 
         if (prerenderedResponse) {
-          console.log(prerenderedResponse);
+          console.log("prerenderedResponse inside the prerender --->");
           res.writeHead(
             prerenderedResponse.statusCode,
             prerenderedResponse.headers
