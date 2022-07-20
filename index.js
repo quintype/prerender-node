@@ -20,19 +20,23 @@ var prerender = (module.exports = function (req, res, next) {
       }
     }
 
-    prerender.getPrerenderedPageResponse(req, function (
-      err,
-      prerenderedResponse
-    ) {
-      prerender.afterRenderFn(err, req, prerenderedResponse);
+    prerender.getPrerenderedPageResponse(
+      req,
+      function (err, prerenderedResponse) {
+        prerender.afterRenderFn(err, req, prerenderedResponse);
 
-      if (prerenderedResponse) {
-        res.writeHead(prerenderedResponse.statusCode, prerenderedResponse.headers);
-        return res.end(prerenderedResponse.body);
-      } else {
-        next(err);
+        if (prerenderedResponse) {
+          console.log(prerenderedResponse);
+          res.writeHead(
+            prerenderedResponse.statusCode,
+            prerenderedResponse.headers
+          );
+          return res.end(prerenderedResponse.body);
+        } else {
+          next(err);
+        }
       }
-    });
+    );
   });
 });
 
@@ -226,9 +230,11 @@ prerender.getPrerenderedPageResponse = function (req, callback) {
   request
     .get(options)
     .on("response", function (response) {
-      response.headers["Cache-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
+      response.headers["Cache-Control"] =
+        "public,max-age=15,s-maxage=300,stale-while-revalidate=1000,stale-if-error=14400";
       response.headers["Vary"] = "Accept-Encoding";
-      response.headers["Surrogate-Control"] = "public,max-age=15,s-maxage=300,stale-while-revalidate=150,stale-if-error=3600";
+      response.headers["Surrogate-Control"] =
+        "public,max-age=15,s-maxage=300,stale-while-revalidate=150,stale-if-error=3600";
       if (
         response.headers["content-encoding"] &&
         response.headers["content-encoding"] === "gzip"
